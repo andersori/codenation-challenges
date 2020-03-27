@@ -26,26 +26,19 @@ public class CodenationService {
 	private String url;
 	@Value("${codenation.token}")
 	private String token;
-	
+
 	private final OkHttpClient client = new OkHttpClient();
 
 	public FileInfo getFile() throws IOException {
 		log.info("{} - {}", url, token);
 		Request req = new Request.Builder()
-				.url(HttpUrl
-						.parse(url + "/generate-data")
-						.newBuilder()
-						.addQueryParameter("token", token)
-						.build())
+				.url(HttpUrl.parse(url + "/generate-data").newBuilder().addQueryParameter("token", token).build())
 				.build();
 
 		try (Response res = client.newCall(req).execute()) {
 			log.info("Arquivo recebido");
-			FileInfo fileInfo = new ObjectMapper()
-					.readValue(
-							res.body().string(), 
-							FileInfo.class);
-			
+			FileInfo fileInfo = new ObjectMapper().readValue(res.body().string(), FileInfo.class);
+
 			res.close();
 			log.info(fileInfo.toString());
 			return fileInfo;
@@ -53,26 +46,17 @@ public class CodenationService {
 	}
 
 	public File sendFile(File file) throws IOException {
-		RequestBody body = new MultipartBody.Builder()
-				.setType(MultipartBody.FORM)
-				.addFormDataPart("answer", "answer.json", RequestBody.create(
-						MediaType.parse("application/octet-stream"), file))
-				.build();
-		
+		RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("answer",
+				"answer.json", RequestBody.create(MediaType.parse("application/octet-stream"), file)).build();
+
 		Request req = new Request.Builder()
-				.url(HttpUrl
-						.parse(url + "/submit-solution")
-						.newBuilder()
-						.addQueryParameter("token", token)
-						.build())
-				.post(body)
-				.build();
-		
-//		try(Response res = client.newCall(req).execute()){
-//			log.info("Arquivo enviado -> {}", res.body().toString());
-//			res.close();
-//			return file;
-//		}
-		return file;
+				.url(HttpUrl.parse(url + "/submit-solution").newBuilder().addQueryParameter("token", token).build())
+				.post(body).build();
+
+		try (Response res = client.newCall(req).execute()) {
+			log.info("Arquivo enviado -> {}", res.body().toString());
+			res.close();
+			return file;
+		}
 	}
 }

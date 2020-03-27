@@ -37,7 +37,14 @@ public class FileService {
 			char asciiCode = msg.charAt(i);
 
 			if (asciiCode >= 97 && asciiCode <= 122) {
-				result.append(Character.toString((char) ((asciiCode - shift) % 26) + 97));
+
+				if ((asciiCode - shift) < 97) {
+					asciiCode = (char) ((asciiCode - shift) + 26);
+				} else {
+					asciiCode = (char) (asciiCode - shift);
+				}
+				
+				result.append(Character.toString(asciiCode));
 			} else {
 				result.append(asciiCode);
 			}
